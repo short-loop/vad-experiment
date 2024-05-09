@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@deepgram/sdk": "^3.0.0",
+    "@ricky0123/vad": "^0.2.4",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "ws": "^8.16.0"

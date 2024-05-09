@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const deepgramClient = createClient(process.env.DEEPGRAM_API_KEY);
+const deepgramClient = createClient("4dea8bfc81f2cd9567986c1ca1d34460c4c1f121");
 let keepAlive;
 
 const setupDeepgram = (ws) => {
@@ -18,6 +18,11 @@ const setupDeepgram = (ws) => {
     punctuate: true,
     smart_format: true,
     model: "nova",
+    vad_events: true,
+    interim_results: true,
+    utterance: true,
+    utterance_end_ms: 1000,
+    endpointing: 200,
   });
 
   if (keepAlive) clearInterval(keepAlive);
@@ -98,6 +103,6 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/public/index.html");
 });
 
-server.listen(3000, () => {
+server.listen(3002, () => {
   console.log("Server is listening on port 3000");
 });

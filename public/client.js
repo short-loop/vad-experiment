@@ -12,9 +12,23 @@ async function getMicrophone() {
 
 async function openMicrophone(microphone, socket) {
   return new Promise((resolve) => {
-    microphone.onstart = () => {
+    microphone.onstart = async () => {
       console.log("WebSocket connection opened");
       document.body.classList.add("recording");
+      const myvad = await vad.MicVAD.new({
+        onFrameProcessed: (probabilities) => {
+          // console.log("FRAME PROCESSED");
+          // console.log(probabilities);
+        },
+        onSpeechStart: (e) => {
+          console.log("SPEECH STARTED", e);
+        },
+        // onVADMisfire: () => { ... },
+        onSpeechEnd: (audio) => {
+          console.log("audio ended");
+        },
+      });
+      myvad.start();
       resolve();
     };
 
@@ -24,6 +38,7 @@ async function openMicrophone(microphone, socket) {
     };
 
     microphone.ondataavailable = (event) => {
+      // console.log(event);
       if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
         socket.send(event.data);
       }
@@ -58,16 +73,16 @@ async function start(socket) {
   });
 }
 
-window.addEventListener("load", () => {
-  const socket = new WebSocket("ws://localhost:3000");
-
+window.addEventListener("load", async () => {
+  const socket = new WebSocket("ws://localhost:3002");
   socket.addEventListener("open", async () => {
     console.log("WebSocket connection opened");
     await start(socket);
   });
-
   socket.addEventListener("message", (event) => {
     const data = JSON.parse(event.data);
+    console.log(data);
+    console.log(data.channel.alternatives[0]);
     if (data.channel.alternatives[0].transcript !== "") {
       captions.innerHTML = data
         ? `<span>${data.channel.alternatives[0].transcript}</span>`
